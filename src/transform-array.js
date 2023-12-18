@@ -24,17 +24,22 @@ function transform(arr) {
 
     switch (arr[i]) {
       case '--discard-next':
-        i++
-        newArr.push(null);
+        if (arr[i + 1]) {
+          i += 1
+          newArr.push(null);
+        }
         break;
       case '--discard-prev':
-        newArr.pop();
+        if (newArr.length > 0) newArr.pop();
         break;
       case '--double-next':
-        if (i < arr.length - 1) newArr.push(arr[i + 1]);
+        if (typeof nextElement === 'object') {
+          newArr.push({ ...nextElement });
+        }
+        if (arr[i + 1]) newArr.push(arr[i + 1]);
         break;
       case '--double-prev':
-        if (i > 0) newArr.push(newArr[newArr.length - 1]);
+        if (arr[i - 1]) newArr.push(newArr[newArr.length - 1]);
         break;
     
       default:
@@ -43,7 +48,21 @@ function transform(arr) {
     }
   }
 
-  return newArr.filter(elment => elment !== null);
+  newArr = newArr.filter(elment => elment !== null);
+
+  for (let i = 0; i < newArr.length; i++) {
+    if (
+      [
+        "--discard-prev",
+        "--discard-next",
+        "--double-prev",
+        "--double-next",
+      ].includes(newArr[i].toString())
+    ) {
+      return transform(newArr);
+    }    
+  }
+  return newArr;
 }
 
 module.exports = {
